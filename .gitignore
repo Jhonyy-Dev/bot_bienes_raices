@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+
+# Baileys auth info (credenciales de WhatsApp)
+auth_info/
+baileys_store/
+auth_info_baileys/
+
+# Logs
+data/logs/*.log
+*.log
+
+# Data files
+data/chats/*.json
+!data/chats/*.example.json
+data/exports/*.json
+data/exports/*.csv
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/

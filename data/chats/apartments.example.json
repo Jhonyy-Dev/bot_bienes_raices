@@ -1,0 +1,26 @@
+[
+    {
+        "id": "1735339200000",
+        "timestamp": "2025-12-27T22:00:00.000Z",
+        "bedrooms": 2,
+        "price": 1800,
+        "location": "Astoria, Queens",
+        "description": "Apartamento renovado, cerca del metro, incluye calefacción"
+    },
+    {
+        "id": "1735339300000",
+        "timestamp": "2025-12-27T22:01:00.000Z",
+        "bedrooms": 1,
+        "price": 1400,
+        "location": "Jackson Heights, Queens",
+        "description": "Estudio amplio con balcón, edificio con lavandería"
+    },
+    {
+        "id": "1735339400000",
+        "timestamp": "2025-12-27T22:02:00.000Z",
+        "bedrooms": 3,
+        "price": 2200,
+        "location": "Flushing, Queens",
+        "description": "3 cuartos, 2 baños, cocina moderna, estacionamiento incluido"
+    }
+]
