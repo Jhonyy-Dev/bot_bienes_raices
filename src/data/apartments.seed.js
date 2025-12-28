@@ -376,5 +376,122 @@ export const apartmentsSeed = [
     "location": "Corona, 33-24 105 St, Queens",
     "description": "2 habitaciones y 1 baños, no hay sala, todo incluido, primer piso",
     "timestamp": "2025-12-28T07:00:00.000Z"
+  },
+  {
+    "id": "43",
+    "type": "basement",
+    "bedrooms": 1,
+    "price": 1550,
+    "location": "Richmond Hill, 97/28 124th st, Queens",
+    "description": "Basement de 1 habitación con sala. Todo incluido puedes ser una pareja o hombre o mujeres, no hay",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "44",
+    "type": "apartamento",
+    "bedrooms": 4,
+    "price": 4400,
+    "location": "Elmhurst, 92 de Elmhurst, Queens",
+    "description": "Apartamento nuevo y amplio de 4 dormitorios, 2 baños, 1 cocina, 1 baño solo para personas de origen asiático. Agua incluida, disponible ahora",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "45",
+    "type": "apartamento",
+    "bedrooms": 3,
+    "price": 0,
+    "location": "Elmhurst, Queens",
+    "description": "Apartamento de 3 dormitorios, 2 baños, 1 cocina, 1 sala de estar, segundo piso. Ubicado en 73 de Utopia Parkway de Fresh Meadows. Calefacción incluida, disponible ahora (alquiler fácil)",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "46",
+    "type": "apartamento",
+    "bedrooms": 4,
+    "price": 0,
+    "location": "Corona, Queens",
+    "description": "Apartamento de 4 dormitorios, 2 baños, 1 cocina, 1 sala de estar, primer piso. 1100 pies cuadrados. Ubicado en 108 St x 43 Av de Corona. Calefacción incluida, disponible ahora",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "47",
+    "type": "apartamento",
+    "bedrooms": 3,
+    "price": 3200,
+    "location": "Corona, 10 Junction Blvd, Queens",
+    "description": "Apartamento sanitizado de 3 dormitorios, baño y medio, 1 cocina, 1 sala de estar, 3 aires acondicionados. Muy segundo piso. Ubicado en 10 Junction Blvd de Corona. Todos los servicios incluidos excepto internet y cable. Disponible ahora (alquiler fácil, máximo 4-5 personas)",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "48",
+    "type": "apartamento",
+    "bedrooms": 1,
+    "price": 0,
+    "location": "Elmhurst, Queens",
+    "description": "Apartamento de 1 habitación, 1 baño, 1 sala de estar, 1 cocina. Apartamento con cocina y sala de estar. Ubicado en 73-20 Utopia Parkway de Elmhurst. Calefacción incluida, disponible ahora (solo para personas de origen asiático)",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "49",
+    "type": "apartamento",
+    "bedrooms": 3,
+    "price": 0,
+    "location": "Maspeth, Queens",
+    "description": "Apartamento de 3 habitaciones, 2 baños, 1 cocina, 1 sala de estar, segundo piso. 1100 pies cuadrados. Ubicado en 53 de 66 St de Maspeth. Agua incluida, disponible el 01/01/26",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "50",
+    "type": "apartamento",
+    "bedrooms": 3,
+    "price": 0,
+    "location": "Woodside, Queens",
+    "description": "Bonito y nuevo semisótano de 3 habitaciones, 1 baño, 1 cocina comedor, terrazas, patio trasero, lavandería. Ubicado en Woodside Av x 71 St de Woodside. Calefacción incluida, disponible ahora (solo para personas de origen filipino, tailandés, asiáticos)",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "51",
+    "type": "apartamento",
+    "bedrooms": 3,
+    "price": 0,
+    "location": "Fresh Meadows, Queens",
+    "description": "Amplio apartamento de 3 habitaciones, 2 baños, 1 cocina, 1 sala de estar, primer piso. 1200 pies cuadrados. Ubicado en 61 Av x 72 St de Fresh Meadows. Calefacción incluida, disponible ahora",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "52",
+    "type": "apartamento",
+    "bedrooms": 3,
+    "price": 2900,
+    "location": "Corona, 108 St x Van Cleef Av, Queens",
+    "description": "Apartamento de 3 habitaciones, 1 baño, 1 cocina, 1 sala de estar, segundo piso. 1000 pies cuadrados. Ubicado en 108 St x Van Cleef Av de Corona. El inquilino paga solo la electricidad, disponible ahora (alquiler fácil)",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "53",
+    "type": "apartamento",
+    "bedrooms": 4,
+    "price": 4100,
+    "location": "Corona, Queens",
+    "description": "Apartamento de 4 habitaciones, 2 baños, 1 cocina, 1 comedor, 1 balcón, segundo piso. 1200 pies cuadrados. Ubicado en 108 St x 43 Av de Corona. Agua incluida, disponible ahora (a hay 2 parqueo)",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "54",
+    "type": "apartamento",
+    "bedrooms": 3,
+    "price": 0,
+    "location": "Elmhurst, Queens",
+    "description": "Apartamento nuevo y lujoso en el primer piso. Ubicado en 73-20 Utopia Parkway de Elmhurst, 3 habitaciones, 1 baño, cocina comedor, terraza, patio trasero, lavandería. Calefacción incluida, disponible ahora",
+    "timestamp": "2025-12-28T22:28:00.000Z"
+  },
+  {
+    "id": "55",
+    "type": "apartamento",
+    "bedrooms": 2,
+    "price": 2300,
+    "location": "Elmhurst, Queens",
+    "description": "Bonito y nuevo apartamento de 2 habitaciones, 1 baño, cocina y sala de estar, segundo piso. 700 pies cuadrados. Ubicado en 73-20 Utopia Parkway de Elmhurst, cerca del metro. Agua incluida, disponible ahora (fácil de alquilar)",
+    "timestamp": "2025-12-28T22:28:00.000Z"
   }
 ];
