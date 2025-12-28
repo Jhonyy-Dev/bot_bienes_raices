@@ -15,11 +15,12 @@ class ApartmentModel {
         try {
             const data = await fs.readFile(this.dataFile, 'utf-8');
             this.apartments = JSON.parse(data);
-            console.log(`📋 Cargados ${this.apartments.length} apartamentos`);
+            console.log(`📋 Cargados ${this.apartments.length} apartamentos desde el grupo de WhatsApp`);
         } catch (error) {
             // Si el archivo no existe, inicializar con array vacío
             this.apartments = [];
-            console.log('📋 Iniciando con base de datos vacía de apartamentos');
+            console.log('📋 Iniciando con base de datos vacía');
+            console.log('⏳ Los apartamentos se cargarán automáticamente del grupo de WhatsApp cuando lleguen mensajes nuevos');
         }
     }
 
