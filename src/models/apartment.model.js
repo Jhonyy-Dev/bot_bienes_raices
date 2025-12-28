@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { config } from '../config/config.js';
+import { apartmentsSeed } from '../data/apartments.seed.js';
 
 class ApartmentModel {
     constructor() {
@@ -15,12 +16,22 @@ class ApartmentModel {
         try {
             const data = await fs.readFile(this.dataFile, 'utf-8');
             this.apartments = JSON.parse(data);
-            console.log(`📋 Cargados ${this.apartments.length} apartamentos desde el grupo de WhatsApp`);
+            
+            // Si está vacío o no hay datos, cargar seed
+            if (!this.apartments || this.apartments.length === 0) {
+                console.log('📋 Base de datos vacía. Cargando propiedades desde seed...');
+                this.apartments = apartmentsSeed;
+                await this.saveApartments();
+                console.log(`✅ Cargadas ${this.apartments.length} propiedades desde seed`);
+            } else {
+                console.log(`📋 Cargados ${this.apartments.length} apartamentos desde archivo`);
+            }
         } catch (error) {
-            // Si el archivo no existe, inicializar con array vacío
-            this.apartments = [];
-            console.log('📋 Iniciando con base de datos vacía');
-            console.log('⏳ Los apartamentos se cargarán automáticamente del grupo de WhatsApp cuando lleguen mensajes nuevos');
+            // Si el archivo no existe, cargar seed
+            console.log('📋 Archivo no existe. Cargando propiedades desde seed...');
+            this.apartments = apartmentsSeed;
+            await this.saveApartments();
+            console.log(`✅ Cargadas ${this.apartments.length} propiedades desde seed`);
         }
     }
 

@@ -16,8 +16,9 @@ data/logs/*.log
 *.log
 
 # Data files
-data/chats/*.json
+!data/chats/apartments.json
 !data/chats/*.example.json
+data/chats/*.json
 data/exports/*.json
 data/exports/*.csv
 
