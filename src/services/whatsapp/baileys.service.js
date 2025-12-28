@@ -31,15 +31,17 @@ class BaileysService {
 
     /**
      * Inicializa la conexión de WhatsApp con Baileys
+     * @param {Function} onQR - Callback cuando se genera un nuevo QR
+     * @param {Function} onConnected - Callback cuando se conecta exitosamente
      */
-    async connect({ forceNewSession = false } = {}) {
+    async connect(onQR = null, onConnected = null) {
+        // Guardar callbacks
+        this.onQR = onQR;
+        this.onConnected = onConnected;
+
         if (this.reconnectTimeout) {
             clearTimeout(this.reconnectTimeout);
             this.reconnectTimeout = null;
-        }
-
-        if (forceNewSession) {
-            await this.clearAuthInfo();
         }
 
         const { state, saveCreds } = await useMultiFileAuthState(config.paths.authInfo);
@@ -75,15 +77,25 @@ class BaileysService {
 
                 // Mostrar QR code (si cambia, lo imprimimos de nuevo)
                 if (qr && qr !== this.lastQr) {
-                    console.log('\n📱 Escanea este código QR con WhatsApp:\n');
-                    qrcode.generate(qr, { small: true });
+                    console.log('\n📱 Nuevo código QR generado');
+                    console.log('🌐 Abre el navegador para escanear el QR\n');
                     this.lastQr = qr;
+                    
+                    // Llamar callback con el QR
+                    if (this.onQR) {
+                        this.onQR(qr);
+                    }
                 }
 
                 // Conexión exitosa
                 if (connection === 'open') {
                     console.log('✅ Conectado a WhatsApp exitosamente!');
                     this.lastQr = null;
+
+                    // Llamar callback de conexión exitosa
+                    if (this.onConnected) {
+                        this.onConnected(true);
+                    }
 
                     if (this.reconnectTimeout) {
                         clearTimeout(this.reconnectTimeout);

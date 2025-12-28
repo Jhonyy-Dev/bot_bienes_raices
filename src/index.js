@@ -2,6 +2,7 @@ import baileysService from './services/whatsapp/baileys.service.js';
 import messageController from './controllers/message.controller.js';
 import apartmentModel from './models/apartment.model.js';
 import sessionCleanup from './utils/cleanup-sessions.js';
+import WebServer from './server/web.server.js';
 import { config } from './config/config.js';
 
 /**
@@ -11,6 +12,10 @@ import { config } from './config/config.js';
  * - Responde a clientes con IA
  */
 class WhatsAppBot {
+    constructor() {
+        this.webServer = new WebServer();
+    }
+
     async start() {
         console.log('🚀 Iniciando Bot de Bienes Raíces...\n');
 
@@ -20,6 +25,9 @@ class WhatsAppBot {
             console.log('Por favor, verifica que tu archivo .env tenga la API key de Groq');
             process.exit(1);
         }
+
+        // Iniciar servidor web PRIMERO
+        this.webServer.start();
 
         // BORRAR sesiones al iniciar (forzar QR cada vez)
         console.log('🧹 Limpiando sesiones anteriores...');
@@ -32,8 +40,14 @@ class WhatsAppBot {
         // Iniciar limpieza automática de sesiones (Railway-friendly)
         sessionCleanup.startAutoCleanup();
 
-        // Conectar a WhatsApp
-        await baileysService.connect();
+        // Conectar a WhatsApp y capturar eventos de QR
+        await baileysService.connect((qr) => {
+            // Pasar QR al servidor web
+            this.webServer.setQR(qr);
+        }, (connected) => {
+            // Actualizar estado de conexión
+            this.webServer.setConnected(connected);
+        });
 
         // Escuchar mensajes entrantes (captura en tiempo real)
         baileysService.ev.on('messages.upsert', async ({ messages, type }) => {
