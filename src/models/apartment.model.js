@@ -76,18 +76,21 @@ class ApartmentModel {
 
     /**
      * Filtra apartamentos por número de cuartos
+     * Excluye propiedades con precio 0 o inválido
      */
     getApartmentsByBedrooms(bedrooms) {
         return this.apartments.filter(apt =>
-            apt.bedrooms === parseInt(bedrooms)
+            apt.bedrooms === parseInt(bedrooms) && apt.price && apt.price > 0
         );
     }
 
     /**
      * Obtiene apartamentos disponibles (todos)
+     * Filtra propiedades con precio 0 o inválido
      */
     getAvailableApartments(limit = 50) {
         return this.apartments
+            .filter(apt => apt.price && apt.price > 0)
             .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
             .slice(0, limit);
     }
