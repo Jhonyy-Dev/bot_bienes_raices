@@ -25,13 +25,6 @@ const properties = [
     },
     {
         type: "apartamento",
-        bedrooms: 4,
-        price: 0, // Precio no especificado
-        location: "Corona, Queens",
-        description: "Apartamento Flor, 2 baños"
-    },
-    {
-        type: "apartamento",
         bedrooms: 3,
         price: 3300,
         location: "56-50 136th St, Flushing, Queens",
@@ -217,13 +210,6 @@ const properties = [
         price: 2380,
         location: "Jackson Heights cerca Elmhurst, Queens",
         description: "1 baño, cocina, sala, balcón pequeño, segundo piso, 700 sq ft, calefacción incluida"
-    },
-    {
-        type: "apartamento",
-        bedrooms: 2,
-        price: 0, // Precio no especificado
-        location: "126-10 5th Avenue, College Point, Queens",
-        description: "Duplex, segundo piso, 1 saco, 1 baño, cocina, sala, aire acondicionado central y split"
     },
     {
         type: "apartamento",

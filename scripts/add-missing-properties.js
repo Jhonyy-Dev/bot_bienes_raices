@@ -13,13 +13,6 @@ const missingProperties = [
         location: "55-08 102 St, Queens",
         description: "Cuarto individual, solo para mujeres"
     },
-    {
-        type: "cuarto",
-        bedrooms: 1,
-        price: 950,
-        location: "55-08 102 St, Queens",
-        description: "Cuarto individual, solo para mujeres"
-    },
     
     // Imagen 2: Mini studio
     {
