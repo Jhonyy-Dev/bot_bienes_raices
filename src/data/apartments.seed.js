@@ -18,6 +18,24 @@ export const apartmentsSeed = [
     "timestamp": "2025-12-28T07:00:00.000Z"
   },
   {
+    "id": "56",
+    "type": "studio",
+    "bedrooms": 0,
+    "price": 1650,
+    "location": "Woodside, 65th St & Woodside Ave, Queens",
+    "description": "Semi basement studio renovado, utilidades incluidas, no mascotas, 1 persona máximo. No necesita crédito, necesita demostrar pruebas de income",
+    "timestamp": "2026-01-02T13:00:00.000Z"
+  },
+  {
+    "id": "57",
+    "type": "studio",
+    "bedrooms": 0,
+    "price": 1800,
+    "location": "Woodside, 65th St & Woodside Ave, Queens",
+    "description": "Semi basement studio renovado, utilidades incluidas, no mascotas, 2 personas máximo. No necesita crédito, necesita demostrar pruebas de income",
+    "timestamp": "2026-01-02T13:00:00.000Z"
+  },
+  {
     "id": "3",
     "type": "cuarto",
     "bedrooms": 1,
