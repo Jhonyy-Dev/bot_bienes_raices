@@ -61,7 +61,7 @@ Si el cliente pide fotos, imágenes, videos, o ver la propiedad visualmente:
 - "Mándame fotos"
 
 RESPONDE EXACTAMENTE:
-"Claro! 📸 Dame un momento para tomarte fotos/video de esa propiedad. Te las envío enseguida. ⏳"
+"Claro! 📸 Déjame coordinar para tomarte fotos/video de esa propiedad y te las envío. 🏠"
 
 Después de esto, DEBES DEJAR DE RESPONDER hasta que el humano envíe las imágenes.
 
@@ -73,11 +73,29 @@ REGLAS DE CONVERSACIÓN:
    - Máximo 2-3 líneas
    - Directo pero cordial
 
-2. MOSTRAR PROPIEDADES:
+2. MOSTRAR PROPIEDADES (FORMATO MEJORADO):
    - Agrupa por categorías: "Studios:", "Apartamentos de 1 cuarto:", etc.
    - MUESTRA TODAS las propiedades de cada categoría
    - NO limites opciones
-   - Formato con CATEGORÍAS VISIBLES
+   
+   FORMATO VISUAL OBLIGATORIO:
+   - Usa *negritas* para el nombre de la propiedad
+   - Usa • (bullet) antes de la descripción
+   - Deja línea en blanco entre cada propiedad
+   - Deja línea en blanco entre categorías
+   
+   EJEMPLO CORRECTO:
+   Studios:
+   1. *Studio* - $1650/mes - Woodside
+      • Semi basement renovado, utilidades incluidas
+   
+   2. *Studio* - $1800/mes - Woodside
+      • Semi basement renovado, 2 personas máximo
+   
+   Cuartos individuales:
+   3. *Cuarto* - $1000/mes - Corona
+      • Habitación para hombre
+   
    - AL FINAL sugiere otras opciones: "También tenemos apartamentos de 2 cuartos, 3 cuartos. ¿Te gustaría verlos? 🏠"
 
 3. COSTOS DE MUDANZA (solo cuando pregunten):
@@ -115,7 +133,7 @@ EJEMPLOS:
 
 "Hola" → "Hola! 👋😊 ¿Qué tipo de vivienda estás buscando?"
 
-"Tienes fotos?" → "Claro! 📸 Dame un momento para tomarte fotos/video de esa propiedad. Te las envío enseguida. ⏳"
+"Tienes fotos?" → "Claro! 📸 Déjame coordinar para tomarte fotos/video de esa propiedad y te las envío. 🏠"
 
 "Tengo un apartamento para rentar" → "¡Excelente! 🏠 Nos interesa mucho. ¿Qué tipo de vivienda tienes disponible? (apartamento, studio, cuarto individual, basement, casa)"
 
@@ -187,13 +205,30 @@ PRINCIPIO FUNDAMENTAL: Sé consultivo, no vendedor. Ayuda genuinamente al client
                 apartmentContext += `${category}:\n`;
                 grouped[category].forEach(apt => {
                     const type = apt.type || 'apartamento';
-                    let bedroomText = '';
-                    if (apt.bedrooms === 0) {
-                        bedroomText = 'Studio';
-                    } else if (apt.bedrooms === 1) {
-                        bedroomText = '1 cuarto';
+                    
+                    // LÓGICA MEJORADA: Evitar redundancia
+                    let propertyName = '';
+                    
+                    if (type === 'cuarto') {
+                        // Cuarto individual - NO mostrar "1 cuarto" (redundante)
+                        propertyName = 'Cuarto';
+                    } else if (type === 'studio') {
+                        // Studio - NO mostrar "0 cuartos" (redundante)
+                        propertyName = 'Studio';
+                    } else if (type === 'basement') {
+                        // Basement - Solo mostrar cuartos si son 2+
+                        if (apt.bedrooms >= 2) {
+                            propertyName = `Basement ${apt.bedrooms} cuartos`;
+                        } else {
+                            propertyName = 'Basement';
+                        }
                     } else {
-                        bedroomText = `${apt.bedrooms} cuartos`;
+                        // Apartamentos - Siempre mostrar cuartos
+                        if (apt.bedrooms === 1) {
+                            propertyName = 'Apartamento 1 cuarto';
+                        } else {
+                            propertyName = `Apartamento ${apt.bedrooms} cuartos`;
+                        }
                     }
                     
                     // Extraer solo la zona/área general (NO dirección exacta)
@@ -201,18 +236,21 @@ PRINCIPIO FUNDAMENTAL: Sé consultivo, no vendedor. Ayuda genuinamente al client
                     const areaMatch = location.match(/(?:en\s+)?([A-Za-z\s]+)(?:,?\s*Queens)?/i);
                     const area = areaMatch ? areaMatch[1].trim() : location.split(',').pop().trim();
                     
-                    apartmentContext += `${globalIndex}. ${type.charAt(0).toUpperCase() + type.slice(1)} ${bedroomText} - $${apt.price}/mes - ${area}\n   ${apt.description}\n`;
+                    // FORMATO MEJORADO con mejor espaciado
+                    apartmentContext += `${globalIndex}. *${propertyName}* - $${apt.price}/mes - ${area}\n   • ${apt.description}\n\n`;
                     globalIndex++;
                 });
                 apartmentContext += '\n';
             });
             
-            apartmentContext += '\n⚠️⚠️⚠️ INSTRUCCIONES CRÍTICAS:\n';
+            apartmentContext += '\n⚠️⚠️⚠️ INSTRUCCIONES CRÍTICAS DE FORMATO:\n';
             apartmentContext += '1. DEBES copiar las categorías exactamente como aparecen arriba\n';
             apartmentContext += '2. MUESTRA TODAS las propiedades sin omitir ninguna\n';
-            apartmentContext += '3. AL FINAL, SIEMPRE di: "También tenemos [otras categorías disponibles]. ¿Te gustaría verlas? 🏠"\n';
-            apartmentContext += '4. NO inventes información, usa solo lo que está arriba\n';
-            apartmentContext += '5. Mantén las categorías visualmente separadas con saltos de línea\n';
+            apartmentContext += '3. RESPETA el formato con *negritas*, • bullets y líneas en blanco\n';
+            apartmentContext += '4. Deja UNA línea en blanco entre cada propiedad\n';
+            apartmentContext += '5. Deja UNA línea en blanco entre cada categoría\n';
+            apartmentContext += '6. AL FINAL, SIEMPRE di: "También tenemos [otras categorías disponibles]. ¿Te gustaría verlas? 🏠"\n';
+            apartmentContext += '7. NO inventes información, usa solo lo que está arriba\n';
         } else {
             apartmentContext = '\n\nPROPIEDADES DISPONIBLES: La base de datos está vacía actualmente. Discúlpate con el cliente y pide que consulte más tarde.';
         }

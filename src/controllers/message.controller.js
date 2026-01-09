@@ -126,7 +126,7 @@ class MessageController {
                     requestTime: new Date().toISOString()
                 });
                 
-                const response = 'Claro! 📸 Dame un momento para tomarte fotos/video de esa propiedad. Te las envío enseguida. ⏳';
+                const response = 'Claro! 📸 Déjame coordinar para tomarte fotos/video de esa propiedad y te las envío. 🏠';
                 
                 conversationModel.addMessage(from, 'assistant', response);
                 await baileysService.sendMessage(from, response);
