@@ -15,7 +15,8 @@ class ConversationStateModel {
      */
     static STATES = {
         BOT_ACTIVE: 'bot_active',           // Bot responde automáticamente
-        WAITING_MEDIA: 'waiting_media',     // Esperando que humano envíe fotos/videos
+        WAITING_MEDIA: 'waiting_media',     // Esperando que humano envíe fotos/videos (bot pausado)
+        MEDIA_REQUESTED: 'media_requested', // Cliente pidió fotos, esperando si dice ok/espero
         HUMAN_TAKEOVER: 'human_takeover',   // Humano ha tomado control
         PROPERTY_OFFER: 'property_offer'    // Cliente quiere ofrecer propiedad
     };
@@ -49,7 +50,11 @@ class ConversationStateModel {
         const stateData = this.cache.get(phoneNumber);
         if (!stateData) return true;
         
-        return stateData.state === ConversationStateModel.STATES.BOT_ACTIVE;
+        // Bot responde en: BOT_ACTIVE, PROPERTY_OFFER, MEDIA_REQUESTED
+        // Solo NO responde en: WAITING_MEDIA y HUMAN_TAKEOVER
+        return stateData.state === ConversationStateModel.STATES.BOT_ACTIVE ||
+               stateData.state === ConversationStateModel.STATES.PROPERTY_OFFER ||
+               stateData.state === ConversationStateModel.STATES.MEDIA_REQUESTED;
     }
 
     /**

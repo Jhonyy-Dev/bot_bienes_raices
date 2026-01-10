@@ -481,6 +481,59 @@ Responde SOLO con YES o NO.`;
     }
 
     /**
+     * Detecta si el cliente está confirmando que esperará (después de solicitar fotos)
+     * vs si quiere continuar la conversación
+     */
+    async detectWaitingAcknowledgment(messageText) {
+        try {
+            const detectionPrompt = `Analiza si el cliente está CONFIRMANDO que esperará las fotos/videos.
+
+Indicadores de que ACEPTA ESPERAR (responde YES):
+- "ok"
+- "okay"
+- "vale"
+- "te espero"
+- "yo espero"
+- "espero"
+- "no hay problema"
+- "perfecto"
+- "está bien"
+- "de acuerdo"
+- "sí"
+- "gracias"
+- Solo emojis positivos (👍, 😊, etc)
+
+Indicadores de que QUIERE CONTINUAR conversación (responde NO):
+- Hace nuevas preguntas
+- Pide más información
+- Pregunta por otras propiedades
+- Pregunta por precios, ubicaciones, detalles
+- Cualquier pregunta que requiera respuesta
+
+Mensaje: "${messageText}"
+
+Responde SOLO con YES (si acepta esperar) o NO (si quiere continuar conversación).`;
+
+            const response = await this.client.chat.completions.create({
+                model: config.groq.model,
+                messages: [
+                    { role: 'system', content: 'Eres un detector de intenciones. Responde SOLO con YES o NO.' },
+                    { role: 'user', content: detectionPrompt }
+                ],
+                temperature: 0.1,
+                max_tokens: 10,
+            });
+
+            const result = response.choices[0].message.content.trim().toUpperCase();
+            return result === 'YES';
+        } catch (error) {
+            console.error('Error detectando confirmación de espera:', error);
+            // En caso de error, asumir que NO quiere esperar (continuar conversación)
+            return false;
+        }
+    }
+
+    /**
      * Genera respuesta de cierre de ventas después de que humano envió media
      * Usa psicología de ventas avanzada
      */

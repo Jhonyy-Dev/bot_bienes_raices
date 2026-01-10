@@ -88,6 +88,31 @@ class MessageController {
                 }
             }
 
+            // CASO ESPECIAL: Si está en estado de solicitud de media pendiente
+            if (currentState === 'media_requested') {
+                console.log('🔍 Cliente respondió después de solicitar media');
+                
+                // Detectar si el cliente confirma que esperará o quiere continuar
+                const willWait = await groqService.detectWaitingAcknowledgment(messageText);
+                
+                if (willWait) {
+                    console.log('⏸️  Cliente confirmó que esperará - Bot se pausa');
+                    // Cliente dijo "ok", "te espero", etc - AHORA SÍ pausar
+                    conversationStateModel.setState(from, 'waiting_media', {
+                        propertyContext: stateData?.metadata?.propertyContext,
+                        requestTime: new Date().toISOString()
+                    });
+                    
+                    console.log(`⚠️  ESPERANDO MEDIA DEL HUMANO para ${from}`);
+                    return; // Bot se detiene
+                } else {
+                    console.log('💬 Cliente quiere continuar conversación - Bot sigue activo');
+                    // Cliente hizo otra pregunta - continuar conversación normal
+                    conversationStateModel.resetToBot(from);
+                    // Continuar con el flujo normal abajo
+                }
+            }
+
             // CASO 2: Verificar si el bot debe responder
             if (!conversationStateModel.shouldBotRespond(from)) {
                 console.log(`⛔ Bot no debe responder a ${from} - Estado: ${currentState}`);
@@ -121,7 +146,8 @@ class MessageController {
                 const history = conversationModel.getHistory(from);
                 const lastMessages = history.slice(-3).map(m => m.content).join(' ');
                 
-                conversationStateModel.setState(from, 'waiting_media', {
+                // NO pausar inmediatamente - marcar como "media_requested"
+                conversationStateModel.setState(from, 'media_requested', {
                     propertyContext: lastMessages,
                     requestTime: new Date().toISOString()
                 });
@@ -131,8 +157,9 @@ class MessageController {
                 conversationModel.addMessage(from, 'assistant', response);
                 await baileysService.sendMessage(from, response);
                 
-                console.log(`⚠️  ESPERANDO MEDIA DEL HUMANO para ${from}`);
+                console.log(`📸 Respuesta de media enviada a ${from}`);
                 console.log(`📌 Propiedad solicitada: ${lastMessages}`);
+                console.log(`⏳ Esperando respuesta del cliente (si dice ok/espero, bot se pausa)`);
                 return;
             }
 
