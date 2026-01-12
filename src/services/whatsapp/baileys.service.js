@@ -152,27 +152,30 @@ class BaileysService {
     }
 
     /**
-     * Envía un mensaje con botones interactivos
+     * Envía un mensaje con lista interactiva (reemplaza botones deprecados)
      * @param {string} jid - ID del destinatario
      * @param {string} text - Texto del mensaje
-     * @param {Array} buttons - Array de botones [{buttonId: 'id', buttonText: {displayText: 'texto'}}]
+     * @param {string} buttonText - Texto del botón principal
+     * @param {Array} sections - Secciones con opciones [{title: 'titulo', rows: [{title, description, rowId}]}]
      * @param {string} footer - Texto del footer (opcional)
      */
-    async sendButtonMessage(jid, text, buttons, footer = '') {
+    async sendListMessage(jid, text, buttonText, sections, footer = '') {
         try {
-            const buttonMessage = {
+            const listMessage = {
                 text: text,
                 footer: footer,
-                buttons: buttons,
-                headerType: 1
+                title: '',
+                buttonText: buttonText,
+                sections: sections
             };
             
-            await this.sock.sendMessage(jid, buttonMessage);
+            await this.sock.sendMessage(jid, listMessage);
             return true;
         } catch (error) {
-            console.error('Error enviando mensaje con botones:', error);
-            // Fallback a mensaje de texto simple si los botones fallan
-            await this.sendMessage(jid, text);
+            console.error('Error enviando lista interactiva:', error);
+            // Fallback a mensaje de texto simple si falla
+            const fallbackText = `${text}\n\n${sections[0].rows.map((r, i) => `${i + 1}. ${r.title}`).join('\n')}`;
+            await this.sendMessage(jid, fallbackText);
             return false;
         }
     }
