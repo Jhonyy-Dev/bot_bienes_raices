@@ -279,10 +279,10 @@ PRINCIPIO FUNDAMENTAL: Sé consultivo, no vendedor. Ayuda genuinamente al client
 
         try {
             const response = await this.client.chat.completions.create({
-                model: config.groq.model,
+                model: 'llama-3.1-8b-instant', // Modelo más pequeño para evitar límites
                 messages: messages,
                 temperature: 0.7,
-                max_tokens: 4000, // Aumentado para listar TODAS las propiedades
+                max_tokens: 500, // Reducido para ahorrar tokens
             });
 
             return response.choices[0].message.content;
@@ -295,10 +295,10 @@ PRINCIPIO FUNDAMENTAL: Sé consultivo, no vendedor. Ayuda genuinamente al client
                 // Reintentar con la nueva API key usando los mismos mensajes
                 try {
                     const response = await this.client.chat.completions.create({
-                        model: config.groq.model,
+                        model: 'llama-3.1-8b-instant',
                         messages: messages,
                         temperature: 0.7,
-                        max_tokens: 4000,
+                        max_tokens: 500,
                     });
                     return response.choices[0].message.content;
                 } catch (retryError) {
