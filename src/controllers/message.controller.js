@@ -134,51 +134,38 @@ class MessageController {
             const messageCount = conversationModel.incrementMessageCount(from);
             console.log(`📊 Mensaje #${messageCount} de ${from}`);
 
-            // PREGUNTA DE PREFERENCIA: Después del segundo mensaje, preguntar AI vs Humano CON LISTA INTERACTIVA
+            // PREGUNTA DE PREFERENCIA: Después del segundo mensaje, preguntar AI vs Humano
             if (messageCount === 2 && !conversationModel.hasAskedPreference(from)) {
                 console.log(`❓ Preguntando preferencia AI vs Humano a ${from}`);
                 
-                const preferenceQuestion = 'Genial! 😊 Antes de seguir, seleccione la opción que más le convenga:';
-                
-                const sections = [
-                    {
-                        title: 'Opciones de Atención',
-                        rows: [
-                            {
-                                title: '🤖 Seguir con IA',
-                                description: 'Continuar conversación con asistente virtual',
-                                rowId: 'prefer_ai'
-                            },
-                            {
-                                title: '👤 Agente Humano',
-                                description: 'Esperar atención de un agente humano',
-                                rowId: 'prefer_human'
-                            }
-                        ]
-                    }
-                ];
+                const preferenceQuestion = `¡Genial! 😊 Antes de seguir, seleccione la opción que más le convenga:
+
+*1️⃣ Seguir con IA* 🤖
+Continuar conversación con asistente virtual
+
+*2️⃣ Agente Humano* 👤
+Esperar atención de un agente humano
+
+_Responda con el número (1 o 2) o escriba "IA" o "Humano"_`;
                 
                 conversationModel.addMessage(from, 'assistant', preferenceQuestion);
-                await baileysService.sendListMessage(
-                    from, 
-                    preferenceQuestion,
-                    'Ver Opciones 👇',
-                    sections,
-                    'Seleccione su preferencia'
-                );
-                console.log(`✅ Lista de preferencias enviada a ${from}`);
+                await baileysService.sendMessage(from, preferenceQuestion);
+                console.log(`✅ Opciones de preferencia enviadas a ${from}`);
                 
                 conversationModel.setAskedPreference(from);
                 return;
             }
 
-            // DETECCIÓN: Cliente solicita atención humana (lista o texto)
+            // DETECCIÓN: Cliente solicita atención humana (número, lista o texto)
             if (conversationModel.hasAskedPreference(from)) {
-                // Detectar si seleccionó opción de humano en la lista o escribió texto solicitando humano
+                const lowerText = messageText.toLowerCase().trim();
+                
+                // Detectar si eligió humano: "2", "humano", "agente", etc.
+                const isNumberHuman = lowerText === '2' || lowerText === '2️⃣';
                 const isListHuman = listResponse === 'prefer_human';
                 const isTextHuman = await groqService.detectHumanRequest(messageText);
                 
-                if (isListHuman || isTextHuman) {
+                if (isNumberHuman || isListHuman || isTextHuman) {
                     console.log(`👤 Cliente ${from} solicitó atención humana`);
                     
                     conversationStateModel.setState(from, 'human_takeover');
@@ -191,8 +178,12 @@ class MessageController {
                     return;
                 }
                 
-                // Si seleccionó opción de IA, continuar conversación normalmente
-                if (listResponse === 'prefer_ai') {
+                // Si eligió IA: "1", "ia", "bot", etc.
+                const isNumberAI = lowerText === '1' || lowerText === '1️⃣';
+                const isListAI = listResponse === 'prefer_ai';
+                const isTextAI = lowerText.includes('ia') || lowerText.includes('bot') || lowerText.includes('asistente');
+                
+                if (isNumberAI || isListAI || isTextAI) {
                     console.log(`🤖 Cliente ${from} prefiere continuar con IA`);
                     const aiResponse = '¡Excelente! 😊 Seguimos juntos. ¿En qué más puedo ayudarte?';
                     conversationModel.addMessage(from, 'assistant', aiResponse);
