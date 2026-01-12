@@ -152,6 +152,32 @@ class BaileysService {
     }
 
     /**
+     * Envía un mensaje con botones interactivos
+     * @param {string} jid - ID del destinatario
+     * @param {string} text - Texto del mensaje
+     * @param {Array} buttons - Array de botones [{buttonId: 'id', buttonText: {displayText: 'texto'}}]
+     * @param {string} footer - Texto del footer (opcional)
+     */
+    async sendButtonMessage(jid, text, buttons, footer = '') {
+        try {
+            const buttonMessage = {
+                text: text,
+                footer: footer,
+                buttons: buttons,
+                headerType: 1
+            };
+            
+            await this.sock.sendMessage(jid, buttonMessage);
+            return true;
+        } catch (error) {
+            console.error('Error enviando mensaje con botones:', error);
+            // Fallback a mensaje de texto simple si los botones fallan
+            await this.sendMessage(jid, text);
+            return false;
+        }
+    }
+
+    /**
      * Obtiene mensajes de un grupo específico desde el historial
      * Nota: Esta función captura mensajes en tiempo real, no historial antiguo
      * Para historial completo, se necesita implementar un store persistente

@@ -39,13 +39,21 @@ class MessageController {
     async handleClientMessage(message) {
         try {
             const from = message.key.remoteJid;
-            const messageText = message.message?.conversation ||
-                message.message?.extendedTextMessage?.text || '';
+            
+            // Detectar si es respuesta de botón
+            const buttonResponse = message.message?.buttonsResponseMessage?.selectedButtonId;
+            
+            const messageText = buttonResponse || 
+                                message.message?.conversation ||
+                                message.message?.extendedTextMessage?.text || '';
             const hasMedia = message.message?.imageMessage || message.message?.videoMessage;
 
             if (!messageText && !hasMedia) return;
 
             console.log(`💬 Cliente ${from}: ${messageText}`);
+            if (buttonResponse) {
+                console.log(`🔘 Botón seleccionado: ${buttonResponse}`);
+            }
 
             // Obtener estado actual de la conversación
             const currentState = conversationStateModel.getState(from);
@@ -126,24 +134,45 @@ class MessageController {
             const messageCount = conversationModel.incrementMessageCount(from);
             console.log(`📊 Mensaje #${messageCount} de ${from}`);
 
-            // PREGUNTA DE PREFERENCIA: Después del segundo mensaje, preguntar AI vs Humano
+            // PREGUNTA DE PREFERENCIA: Después del segundo mensaje, preguntar AI vs Humano CON BOTONES
             if (messageCount === 2 && !conversationModel.hasAskedPreference(from)) {
                 console.log(`❓ Preguntando preferencia AI vs Humano a ${from}`);
                 
-                const preferenceQuestion = '¡Perfecto! 😊 ¿Prefieres seguir esta conversación conmigo (tu asistente de IA) o te gustaría hablar con uno de nuestros agentes humanos? 🤖👥\n\nRespóndeme: "IA" o "Humano"';
+                const preferenceQuestion = 'Genial! 😊 Antes de seguir, seleccione la opción que más le convenga:';
+                
+                const buttons = [
+                    {
+                        buttonId: 'prefer_ai',
+                        buttonText: { displayText: '🤖 Seguir el chat con IA' },
+                        type: 1
+                    },
+                    {
+                        buttonId: 'prefer_human',
+                        buttonText: { displayText: '👤 Esperar un agente humano' },
+                        type: 1
+                    }
+                ];
                 
                 conversationModel.addMessage(from, 'assistant', preferenceQuestion);
-                await baileysService.sendMessage(from, preferenceQuestion);
-                console.log(`✅ Pregunta de preferencia enviada a ${from}`);
+                await baileysService.sendButtonMessage(
+                    from, 
+                    preferenceQuestion, 
+                    buttons,
+                    'Seleccione una opción 👇'
+                );
+                console.log(`✅ Botones de preferencia enviados a ${from}`);
                 
                 conversationModel.setAskedPreference(from);
                 return;
             }
 
-            // DETECCIÓN: Cliente solicita atención humana
+            // DETECCIÓN: Cliente solicita atención humana (botón o texto)
             if (conversationModel.hasAskedPreference(from)) {
-                const wantsHuman = await groqService.detectHumanRequest(messageText);
-                if (wantsHuman) {
+                // Detectar si presionó botón de humano o escribió texto solicitando humano
+                const isButtonHuman = buttonResponse === 'prefer_human';
+                const isTextHuman = await groqService.detectHumanRequest(messageText);
+                
+                if (isButtonHuman || isTextHuman) {
                     console.log(`👤 Cliente ${from} solicitó atención humana`);
                     
                     conversationStateModel.setState(from, 'human_takeover');
@@ -153,6 +182,15 @@ class MessageController {
                     conversationModel.addMessage(from, 'assistant', humanResponse);
                     await baileysService.sendMessage(from, humanResponse);
                     console.log(`✅ Respuesta de humano enviada - Bot detenido para ${from}`);
+                    return;
+                }
+                
+                // Si presionó botón de IA, continuar conversación normalmente
+                if (buttonResponse === 'prefer_ai') {
+                    console.log(`🤖 Cliente ${from} prefiere continuar con IA`);
+                    const aiResponse = '¡Excelente! 😊 Seguimos juntos. ¿En qué más puedo ayudarte?';
+                    conversationModel.addMessage(from, 'assistant', aiResponse);
+                    await baileysService.sendMessage(from, aiResponse);
                     return;
                 }
             }
