@@ -40,10 +40,10 @@ class MessageController {
         try {
             const from = message.key.remoteJid;
             
-            // Detectar si es respuesta de lista interactiva
-            const listResponse = message.message?.listResponseMessage?.singleSelectReply?.selectedRowId;
+            // Detectar si es respuesta de botón clickeable
+            const buttonResponse = message.message?.buttonsResponseMessage?.selectedButtonId;
             
-            const messageText = listResponse || 
+            const messageText = buttonResponse || 
                                 message.message?.conversation ||
                                 message.message?.extendedTextMessage?.text || '';
             const hasMedia = message.message?.imageMessage || message.message?.videoMessage;
@@ -51,8 +51,8 @@ class MessageController {
             if (!messageText && !hasMedia) return;
 
             console.log(`💬 Cliente ${from}: ${messageText}`);
-            if (listResponse) {
-                console.log(`📋 Opción seleccionada: ${listResponse}`);
+            if (buttonResponse) {
+                console.log(`🔘 Botón presionado: ${buttonResponse}`);
             }
 
             // Obtener estado actual de la conversación
@@ -138,21 +138,29 @@ class MessageController {
             if (messageCount === 2 && !conversationModel.hasAskedPreference(from)) {
                 console.log(`❓ Preguntando preferencia AI vs Humano a ${from}`);
                 
-                const preferenceQuestion = `¡Genial! 😊 Antes de seguir, *seleccione una opción:*
-
-┌──────────────────────────────┐
-│  🤖 *SEGUIR CON IA*           │
-│  Responde: *1* o *IA*          │
-└──────────────────────────────┘
-
-┌──────────────────────────────┐
-│  👤 *AGENTE HUMANO*         │
-│  Responde: *2* o *HUMANO*      │
-└──────────────────────────────┘`;
+                const preferenceQuestion = '¡Genial! 😊 Antes de seguir, seleccione la opción que más le convenga:';
+                
+                const buttons = [
+                    {
+                        buttonId: 'prefer_ai',
+                        buttonText: { displayText: '🤖 Seguir con IA' },
+                        type: 1
+                    },
+                    {
+                        buttonId: 'prefer_human',
+                        buttonText: { displayText: '👤 Agente Humano' },
+                        type: 1
+                    }
+                ];
                 
                 conversationModel.addMessage(from, 'assistant', preferenceQuestion);
-                await baileysService.sendMessage(from, preferenceQuestion);
-                console.log(`✅ Opciones de preferencia enviadas a ${from}`);
+                await baileysService.sendButtonMessage(
+                    from,
+                    preferenceQuestion,
+                    buttons,
+                    'Presione el botón de su preferencia'
+                );
+                console.log(`✅ Botones clickeables enviados a ${from}`);
                 
                 conversationModel.setAskedPreference(from);
                 return;
@@ -162,12 +170,12 @@ class MessageController {
             if (conversationModel.hasAskedPreference(from)) {
                 const lowerText = messageText.toLowerCase().trim();
                 
-                // Detectar si eligió humano: "2", "humano", "agente", etc.
+                // Detectar si presionó botón de humano o escribió texto
+                const isButtonHuman = buttonResponse === 'prefer_human';
                 const isNumberHuman = lowerText === '2' || lowerText === '2️⃣';
-                const isListHuman = listResponse === 'prefer_human';
                 const isTextHuman = await groqService.detectHumanRequest(messageText);
                 
-                if (isNumberHuman || isListHuman || isTextHuman) {
+                if (isButtonHuman || isNumberHuman || isTextHuman) {
                     console.log(`👤 Cliente ${from} solicitó atención humana`);
                     
                     conversationStateModel.setState(from, 'human_takeover');
@@ -180,12 +188,12 @@ class MessageController {
                     return;
                 }
                 
-                // Si eligió IA: "1", "ia", "bot", etc.
+                // Si presionó botón de IA o escribió texto
+                const isButtonAI = buttonResponse === 'prefer_ai';
                 const isNumberAI = lowerText === '1' || lowerText === '1️⃣';
-                const isListAI = listResponse === 'prefer_ai';
                 const isTextAI = lowerText.includes('ia') || lowerText.includes('bot') || lowerText.includes('asistente');
                 
-                if (isNumberAI || isListAI || isTextAI) {
+                if (isButtonAI || isNumberAI || isTextAI) {
                     console.log(`🤖 Cliente ${from} prefiere continuar con IA`);
                     const aiResponse = '¡Excelente! 😊 Seguimos juntos. ¿En qué más puedo ayudarte?';
                     conversationModel.addMessage(from, 'assistant', aiResponse);

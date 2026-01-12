@@ -3,7 +3,7 @@ import makeWASocket, {
     useMultiFileAuthState,
     fetchLatestBaileysVersion,
     makeCacheableSignalKeyStore
-} from '@whiskeysockets/baileys';
+} from 'baileys-pro';
 import qrcode from 'qrcode-terminal';
 import { EventEmitter } from 'events';
 import fs from 'fs/promises';
@@ -152,29 +152,28 @@ class BaileysService {
     }
 
     /**
-     * Envía un mensaje con lista interactiva (reemplaza botones deprecados)
+     * Envía un mensaje con botones clickeables (baileys-pro)
      * @param {string} jid - ID del destinatario
      * @param {string} text - Texto del mensaje
-     * @param {string} buttonText - Texto del botón principal
-     * @param {Array} sections - Secciones con opciones [{title: 'titulo', rows: [{title, description, rowId}]}]
+     * @param {Array} buttons - Array de botones [{buttonId: 'id', buttonText: {displayText: 'texto'}, type: 1}]
      * @param {string} footer - Texto del footer (opcional)
      */
-    async sendListMessage(jid, text, buttonText, sections, footer = '') {
+    async sendButtonMessage(jid, text, buttons, footer = '') {
         try {
-            const listMessage = {
+            const buttonMessage = {
                 text: text,
                 footer: footer,
-                title: '',
-                buttonText: buttonText,
-                sections: sections
+                buttons: buttons,
+                headerType: 1
             };
             
-            await this.sock.sendMessage(jid, listMessage);
+            await this.sock.sendMessage(jid, buttonMessage);
+            console.log('✅ Botones enviados correctamente');
             return true;
         } catch (error) {
-            console.error('Error enviando lista interactiva:', error);
+            console.error('Error enviando botones:', error);
             // Fallback a mensaje de texto simple si falla
-            const fallbackText = `${text}\n\n${sections[0].rows.map((r, i) => `${i + 1}. ${r.title}`).join('\n')}`;
+            const fallbackText = `${text}\n\n${buttons.map((b, i) => `${i + 1}. ${b.buttonText.displayText}`).join('\n')}\n\n${footer}`;
             await this.sendMessage(jid, fallbackText);
             return false;
         }
