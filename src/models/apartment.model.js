@@ -40,6 +40,10 @@ class ApartmentModel {
      */
     async saveApartments() {
         try {
+            // Crear directorio si no existe
+            const dir = path.dirname(this.dataFile);
+            await fs.mkdir(dir, { recursive: true });
+            
             await fs.writeFile(
                 this.dataFile,
                 JSON.stringify(this.apartments, null, 2),
