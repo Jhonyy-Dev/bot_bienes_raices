@@ -152,37 +152,28 @@ class BaileysService {
     }
 
     /**
-     * Envía un mensaje con botones usando templateButtons (formato que funciona)
-     * @param {string} jid - ID del destinatario
-     * @param {string} text - Texto del mensaje
-     * @param {Array} buttons - Array de botones [{index: 1, quickReplyButton: {displayText: 'texto', id: 'id'}}]
-     * @param {string} footer - Texto del footer (opcional)
+     * Envía una ENCUESTA con opciones CLICKEABLES (alternativa a botones)
+     * @param {string} jid - ID del destinatario  
+     * @param {string} question - Pregunta de la encuesta
+     * @param {Array} options - Array de opciones clickeables
      */
-    async sendButtonMessage(jid, text, buttons, footer = '') {
+    async sendPollMessage(jid, question, options) {
         try {
-            // Formato templateButtons - el único que funciona actualmente
-            const templateButtons = buttons.map((btn, idx) => ({
-                index: idx + 1,
-                quickReplyButton: {
-                    displayText: btn.buttonText?.displayText || btn.displayText,
-                    id: btn.buttonId || btn.id
+            const pollMessage = {
+                poll: {
+                    name: question,
+                    values: options,
+                    selectableCount: 1  // Solo una opción seleccionable
                 }
-            }));
-
-            const templateMessage = {
-                text: text,
-                footer: footer,
-                templateButtons: templateButtons,
-                viewOnce: true
             };
             
-            await this.sock.sendMessage(jid, templateMessage);
-            console.log('✅ Template buttons enviados correctamente');
+            await this.sock.sendMessage(jid, pollMessage);
+            console.log('✅ Encuesta con opciones clickeables enviada');
             return true;
         } catch (error) {
-            console.error('Error enviando template buttons:', error);
-            // Fallback a mensaje de texto simple
-            const fallbackText = `${text}\n\n${buttons.map((b, i) => `${i + 1}. ${b.buttonText?.displayText || b.displayText}`).join('\n')}\n\n${footer}`;
+            console.error('Error enviando encuesta:', error);
+            // Fallback a mensaje de texto
+            const fallbackText = `${question}\n\n${options.map((opt, i) => `${i + 1}. ${opt}`).join('\n')}`;
             await this.sendMessage(jid, fallbackText);
             return false;
         }
