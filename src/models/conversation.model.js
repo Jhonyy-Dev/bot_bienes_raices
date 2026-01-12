@@ -8,6 +8,8 @@ class ConversationModel {
     constructor() {
         // Cache con TTL de 24 horas (86400 segundos)
         this.cache = new NodeCache({ stdTTL: 86400 });
+        // Estado adicional: contador de mensajes y preferencias
+        this.userStates = new Map();
     }
 
     /**
@@ -48,6 +50,44 @@ class ConversationModel {
             phoneNumber: key,
             messages: this.cache.get(key)
         }));
+    }
+
+    /**
+     * Obtiene o crea el estado del usuario
+     */
+    getUserState(phoneNumber) {
+        if (!this.userStates.has(phoneNumber)) {
+            this.userStates.set(phoneNumber, {
+                messageCount: 0,
+                hasAskedPreference: false
+            });
+        }
+        return this.userStates.get(phoneNumber);
+    }
+
+    /**
+     * Incrementa el contador de mensajes del usuario
+     */
+    incrementMessageCount(phoneNumber) {
+        const state = this.getUserState(phoneNumber);
+        state.messageCount++;
+        return state.messageCount;
+    }
+
+    /**
+     * Verifica si ya se preguntó la preferencia AI vs Human
+     */
+    hasAskedPreference(phoneNumber) {
+        const state = this.getUserState(phoneNumber);
+        return state.hasAskedPreference;
+    }
+
+    /**
+     * Marca que ya se preguntó la preferencia
+     */
+    setAskedPreference(phoneNumber) {
+        const state = this.getUserState(phoneNumber);
+        state.hasAskedPreference = true;
     }
 }
 

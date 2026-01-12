@@ -23,7 +23,18 @@ class GroqService {
 - Marketing persuasivo no invasivo
 - Técnicas de cierre profesional
 
-TIPOS: Apartamentos, Studios, Cuartos individuales, Basements
+TIPOS DE VIVIENDA Y PRIVACIDAD:
+
+🔒 VIVIENDAS PRIVADAS (vives solo o con tu familia, SIN compartir con desconocidos):
+   - Studios (estudio completo privado)
+   - Apartamentos de 1, 2, 3+ cuartos (apartamento completo privado)
+   - Basements (sótano completo privado)
+   
+👥 VIVIENDA COMPARTIDA (compartes el apartamento con otras personas):
+   - Cuartos individuales (solo un cuarto, compartes cocina, baño y áreas comunes con otras personas)
+
+⚠️ CRÍTICO: Cuando respondas sobre Studios, Apartamentos o Basements, SIEMPRE menciona que son PRIVADOS.
+Cuando hables de Cuartos individuales, SIEMPRE aclara que son cuartos en apartamentos compartidos.
 
 FORMATO:
 ✅ "1 cuarto", "2 cuartos" (NO "BR")
@@ -120,7 +131,7 @@ REGLAS DE CONVERSACIÓN:
    
    E) CIERRE SUAVE (nunca agresivo):
    - Interesado → "¡Genial! ¿Te gustaría verla? 😊"
-   - SÍ → "¡Perfecto! 🎉 Oficina: 80-20 Roosevelt Ave, piso 2, of. 202, Queens. Lun-Sáb 9am-6pm. ¿Cuándo te viene mejor?"
+   - SÍ → "¡Perfecto! 🎉 Oficina: 80-20 Roosevelt Ave, piso 2, of. 202, Queens. Lun-Sáb 11am-8pm. ¿Cuándo te viene mejor?"
    - NO → "Entiendo perfectamente. ¿Quieres que te muestre otras opciones que se ajusten mejor? 😊"
 
 5. CONSTRUCCIÓN DE RAPPORT:
@@ -133,6 +144,10 @@ EJEMPLOS:
 
 "Hola" → "Hola! 👋😊 ¿Qué tipo de vivienda estás buscando?"
 
+"Studio" → "Sí, tengo studios disponibles! 🏠 Son apartamentos completos y PRIVADOS (vives solo o con tu familia, sin compartir con otras personas). [Lista]. ¿Te interesa alguno?"
+
+"Cuarto" → "Sí, tengo cuartos individuales! 🏠 Son habitaciones en apartamentos compartidos (compartes cocina, baño y áreas comunes con otras personas). [Lista]. ¿Te interesa alguno?"
+
 "Tienes fotos?" → "Claro! 📸 Déjame coordinar para tomarte fotos/video de esa propiedad y te las envío. 🏠"
 
 "Tengo un apartamento para rentar" → "¡Excelente! 🏠 Nos interesa mucho. ¿Qué tipo de vivienda tienes disponible? (apartamento, studio, cuarto individual, basement, casa)"
@@ -142,7 +157,7 @@ EJEMPLOS:
 "Necesito pensarlo" → "Por supuesto, es una decisión importante. ¿Hay algo específico que te preocupa o te gustaría saber? Estoy aquí para ayudarte 😊"
 
 DIRECCIÓN: 80-20 Roosevelt Ave, piso 2, oficina 202, Queens
-HORARIO: Lun-Sáb 9am-6pm
+HORARIO: Lun-Sáb 11am-8pm
 
 PRINCIPIO FUNDAMENTAL: Sé consultivo, no vendedor. Ayuda genuinamente al cliente a encontrar su hogar ideal. La venta viene como consecuencia natural de la confianza.`;
     }
@@ -476,6 +491,48 @@ Responde SOLO con YES o NO.`;
             return result === 'YES';
         } catch (error) {
             console.error('Error detectando solicitud de media:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Detecta si el cliente quiere hablar con un humano
+     */
+    async detectHumanRequest(messageText) {
+        try {
+            const detectionPrompt = `Analiza si el cliente está solicitando hablar con un HUMANO.
+
+Indicadores de solicitud de humano:
+- "humano"
+- "persona"
+- "agente"
+- "con alguien"
+- "hablar con"
+- "asesor"
+- "representante"
+- Respuestas como "sí" o "humano" después de haber preguntado AI vs Humano
+
+Si el cliente SOLICITA humano, responde: YES
+Si prefiere IA o continúa conversación normal, responde: NO
+
+Mensaje: "${messageText}"
+
+Responde SOLO con YES o NO.`;
+
+            const response = await this.client.chat.completions.create({
+                model: config.groq.model,
+                messages: [
+                    { role: 'system', content: 'Eres un detector de intenciones. Responde SOLO con YES o NO.' },
+                    { role: 'user', content: detectionPrompt }
+                ],
+                temperature: 0.1,
+                max_tokens: 10,
+            });
+
+            const result = response.choices[0].message.content.trim().toUpperCase();
+            return result === 'YES';
+        } catch (error) {
+            console.error('Error detectando solicitud de humano:', error);
             return false;
         }
     }

@@ -122,6 +122,41 @@ class MessageController {
             // Agregar mensaje del usuario al historial
             conversationModel.addMessage(from, 'user', messageText);
 
+            // Incrementar contador de mensajes del usuario
+            const messageCount = conversationModel.incrementMessageCount(from);
+            console.log(`📊 Mensaje #${messageCount} de ${from}`);
+
+            // PREGUNTA DE PREFERENCIA: Después del segundo mensaje, preguntar AI vs Humano
+            if (messageCount === 2 && !conversationModel.hasAskedPreference(from)) {
+                console.log(`❓ Preguntando preferencia AI vs Humano a ${from}`);
+                
+                const preferenceQuestion = '¡Perfecto! 😊 ¿Prefieres seguir esta conversación conmigo (tu asistente de IA) o te gustaría hablar con uno de nuestros agentes humanos? 🤖👥\n\nRespóndeme: "IA" o "Humano"';
+                
+                conversationModel.addMessage(from, 'assistant', preferenceQuestion);
+                await baileysService.sendMessage(from, preferenceQuestion);
+                console.log(`✅ Pregunta de preferencia enviada a ${from}`);
+                
+                conversationModel.setAskedPreference(from);
+                return;
+            }
+
+            // DETECCIÓN: Cliente solicita atención humana
+            if (conversationModel.hasAskedPreference(from)) {
+                const wantsHuman = await groqService.detectHumanRequest(messageText);
+                if (wantsHuman) {
+                    console.log(`👤 Cliente ${from} solicitó atención humana`);
+                    
+                    conversationStateModel.setState(from, 'human_takeover');
+                    
+                    const humanResponse = '¡Perfecto! 😊 Un agente humano se pondrá en contacto contigo pronto. Visítanos en 80-20 Roosevelt Ave, piso 2, of. 202, Queens. Horario: Lun-Sáb 11am-8pm. ¡Gracias! 🙏';
+                    
+                    conversationModel.addMessage(from, 'assistant', humanResponse);
+                    await baileysService.sendMessage(from, humanResponse);
+                    console.log(`✅ Respuesta de humano enviada - Bot detenido para ${from}`);
+                    return;
+                }
+            }
+
             // DETECCIÓN 1: Cliente quiere OFRECER una propiedad
             const isPropertyOffer = await groqService.detectPropertyOffer(messageText);
             if (isPropertyOffer) {
