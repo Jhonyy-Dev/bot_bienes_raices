@@ -40,20 +40,13 @@ class MessageController {
         try {
             const from = message.key.remoteJid;
             
-            // Detectar si es respuesta de ENCUESTA (poll)
-            const pollResponse = message.message?.pollUpdateMessage?.vote?.[0];
-            
-            const messageText = pollResponse || 
-                                message.message?.conversation ||
+            const messageText = message.message?.conversation ||
                                 message.message?.extendedTextMessage?.text || '';
             const hasMedia = message.message?.imageMessage || message.message?.videoMessage;
 
             if (!messageText && !hasMedia) return;
 
             console.log(`💬 Cliente ${from}: ${messageText}`);
-            if (pollResponse) {
-                console.log(`📊 Opción de encuesta seleccionada: ${pollResponse}`);
-            }
 
             // Obtener estado actual de la conversación
             const currentState = conversationStateModel.getState(from);
@@ -134,19 +127,15 @@ class MessageController {
             const messageCount = conversationModel.incrementMessageCount(from);
             console.log(`📊 Mensaje #${messageCount} de ${from}`);
 
-            // PREGUNTA DE PREFERENCIA: Después del segundo mensaje, enviar ENCUESTA CLICKEABLE
+            // PREGUNTA DE PREFERENCIA: Después del segundo mensaje, preguntar AI vs Humano
             if (messageCount === 2 && !conversationModel.hasAskedPreference(from)) {
-                console.log(`❓ Enviando encuesta clickeable a ${from}`);
+                console.log(`❓ Preguntando preferencia AI vs Humano a ${from}`);
                 
-                const question = '¡Genial! 😊 ¿Cómo prefieres continuar?';
-                const options = [
-                    '🤖 Seguir con IA',
-                    '👤 Agente Humano'
-                ];
+                const preferenceQuestion = '¡Genial! 😊 Antes de seguir, elige una opción:\n\n➡️ Responde *1* para seguir con IA 🤖\n➡️ Responde *2* para agente humano 👤';
                 
-                conversationModel.addMessage(from, 'assistant', question);
-                await baileysService.sendPollMessage(from, question, options);
-                console.log(`✅ Encuesta con opciones CLICKEABLES enviada a ${from}`);
+                conversationModel.addMessage(from, 'assistant', preferenceQuestion);
+                await baileysService.sendMessage(from, preferenceQuestion);
+                console.log(`✅ Opciones enviadas a ${from}`);
                 
                 conversationModel.setAskedPreference(from);
                 return;
@@ -156,12 +145,11 @@ class MessageController {
             if (conversationModel.hasAskedPreference(from)) {
                 const lowerText = messageText.toLowerCase().trim();
                 
-                // Detectar si seleccionó opción de humano en la encuesta o escribió
-                const isPollHuman = pollResponse === '👤 Agente Humano';
+                // Detectar si escribió 2 para humano
                 const isNumberHuman = lowerText === '2' || lowerText === '2️⃣';
                 const isTextHuman = await groqService.detectHumanRequest(messageText);
                 
-                if (isPollHuman || isNumberHuman || isTextHuman) {
+                if (isNumberHuman || isTextHuman) {
                     console.log(`👤 Cliente ${from} solicitó atención humana`);
                     
                     conversationStateModel.setState(from, 'human_takeover');
@@ -174,12 +162,11 @@ class MessageController {
                     return;
                 }
                 
-                // Si seleccionó opción de IA en la encuesta o escribió
-                const isPollAI = pollResponse === '🤖 Seguir con IA';
+                // Si escribió 1 para IA
                 const isNumberAI = lowerText === '1' || lowerText === '1️⃣';
                 const isTextAI = lowerText.includes('ia') || lowerText.includes('bot') || lowerText.includes('asistente');
                 
-                if (isPollAI || isNumberAI || isTextAI) {
+                if (isNumberAI || isTextAI) {
                     console.log(`🤖 Cliente ${from} prefiere continuar con IA`);
                     const aiResponse = '¡Excelente! 😊 Seguimos juntos. ¿En qué más puedo ayudarte?';
                     conversationModel.addMessage(from, 'assistant', aiResponse);
