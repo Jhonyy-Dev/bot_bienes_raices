@@ -152,28 +152,37 @@ class BaileysService {
     }
 
     /**
-     * Envía un mensaje con botones clickeables (baileys-pro)
+     * Envía un mensaje con botones usando templateButtons (formato que funciona)
      * @param {string} jid - ID del destinatario
      * @param {string} text - Texto del mensaje
-     * @param {Array} buttons - Array de botones [{buttonId: 'id', buttonText: {displayText: 'texto'}, type: 1}]
+     * @param {Array} buttons - Array de botones [{index: 1, quickReplyButton: {displayText: 'texto', id: 'id'}}]
      * @param {string} footer - Texto del footer (opcional)
      */
     async sendButtonMessage(jid, text, buttons, footer = '') {
         try {
-            const buttonMessage = {
+            // Formato templateButtons - el único que funciona actualmente
+            const templateButtons = buttons.map((btn, idx) => ({
+                index: idx + 1,
+                quickReplyButton: {
+                    displayText: btn.buttonText?.displayText || btn.displayText,
+                    id: btn.buttonId || btn.id
+                }
+            }));
+
+            const templateMessage = {
                 text: text,
                 footer: footer,
-                buttons: buttons,
-                headerType: 1
+                templateButtons: templateButtons,
+                viewOnce: true
             };
             
-            await this.sock.sendMessage(jid, buttonMessage);
-            console.log('✅ Botones enviados correctamente');
+            await this.sock.sendMessage(jid, templateMessage);
+            console.log('✅ Template buttons enviados correctamente');
             return true;
         } catch (error) {
-            console.error('Error enviando botones:', error);
-            // Fallback a mensaje de texto simple si falla
-            const fallbackText = `${text}\n\n${buttons.map((b, i) => `${i + 1}. ${b.buttonText.displayText}`).join('\n')}\n\n${footer}`;
+            console.error('Error enviando template buttons:', error);
+            // Fallback a mensaje de texto simple
+            const fallbackText = `${text}\n\n${buttons.map((b, i) => `${i + 1}. ${b.buttonText?.displayText || b.displayText}`).join('\n')}\n\n${footer}`;
             await this.sendMessage(jid, fallbackText);
             return false;
         }
