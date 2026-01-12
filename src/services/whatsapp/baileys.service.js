@@ -3,7 +3,7 @@ import makeWASocket, {
     useMultiFileAuthState,
     fetchLatestBaileysVersion,
     makeCacheableSignalKeyStore
-} from 'baileys-pro';
+} from '@whiskeysockets/baileys';
 import qrcode from 'qrcode-terminal';
 import { EventEmitter } from 'events';
 import fs from 'fs/promises';
