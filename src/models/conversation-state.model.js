@@ -25,8 +25,8 @@ class ConversationStateModel {
      * Obtiene el estado actual de una conversación
      */
     getState(phoneNumber) {
-        const state = this.cache.get(phoneNumber);
-        return state || ConversationStateModel.STATES.BOT_ACTIVE;
+        const stateData = this.cache.get(phoneNumber);
+        return stateData?.state || ConversationStateModel.STATES.BOT_ACTIVE;
     }
 
     /**
