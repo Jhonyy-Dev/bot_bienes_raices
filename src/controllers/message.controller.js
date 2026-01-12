@@ -138,15 +138,17 @@ class MessageController {
             if (messageCount === 2 && !conversationModel.hasAskedPreference(from)) {
                 console.log(`❓ Preguntando preferencia AI vs Humano a ${from}`);
                 
-                const preferenceQuestion = `¡Genial! 😊 Antes de seguir, seleccione la opción que más le convenga:
+                const preferenceQuestion = `¡Genial! 😊 Antes de seguir, *seleccione una opción:*
 
-*1️⃣ Seguir con IA* 🤖
-Continuar conversación con asistente virtual
+┌──────────────────────────────┐
+│  🤖 *SEGUIR CON IA*           │
+│  Responde: *1* o *IA*          │
+└──────────────────────────────┘
 
-*2️⃣ Agente Humano* 👤
-Esperar atención de un agente humano
-
-_Responda con el número (1 o 2) o escriba "IA" o "Humano"_`;
+┌──────────────────────────────┐
+│  👤 *AGENTE HUMANO*         │
+│  Responde: *2* o *HUMANO*      │
+└──────────────────────────────┘`;
                 
                 conversationModel.addMessage(from, 'assistant', preferenceQuestion);
                 await baileysService.sendMessage(from, preferenceQuestion);
